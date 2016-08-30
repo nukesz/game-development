@@ -65,6 +65,9 @@ nb-configuration.xml
 gradle-app.setting
 build/
 
+gradle/wrapper/gradle-wrapper.jar
+gradle/wrapper/gradle-wrapper.properties
+
 ## OS Specific
 .DS_Store
 Thumbs.db
