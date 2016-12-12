@@ -11,10 +11,12 @@ import java.awt.*;
 public class GameScreen extends ScreenAdapter {
 
     private SpriteBatch batch;
+    private Texture snakeHead;
 
     @Override
     public void show() {
         batch = new SpriteBatch();
+        snakeHead = new Texture(Gdx.files.internal("snakehead.png"));
     }
 
     @Override
@@ -22,6 +24,7 @@ public class GameScreen extends ScreenAdapter {
         Gdx.gl.glClearColor(Color.BLACK.getRed(), Color.BLACK.getGreen(), Color.BLACK.getBlue(), Color.BLACK.getAlpha());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
+        batch.draw(snakeHead, 0, 0);
         batch.end();
     }
 }

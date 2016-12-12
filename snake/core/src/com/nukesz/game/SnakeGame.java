@@ -14,6 +14,4 @@ public class SnakeGame extends Game {
         setScreen(new GameScreen());
     }
 
-
-
 }
