@@ -33,6 +33,8 @@ public class GameScreen extends ScreenAdapter {
     private int appleX;
     private int appleY;
     private Array<BodyPart> bodyParts = new Array<BodyPart>();
+    private int snakeXBeforeUpdate;
+    private int snakeYBeforeUpdate;
 
     @Override
     public void show() {
@@ -50,16 +52,20 @@ public class GameScreen extends ScreenAdapter {
             timer = MOVE_TIME;
             moveSnake();
             checkForOutOfBounds();
+            updateBodyPartsPosition();
         }
         checkAppleCollision();
         checkAndPlaceApple();
         clearScreen();
-        batch.begin();
         draw();
     }
 
     private void draw() {
+        batch.begin();
         batch.draw(snakeHead, snakeX, snakeY);
+        for (BodyPart bodyPart : bodyParts) {
+            bodyPart.draw(batch, snakeX, snakeY);
+        }
         if (appleAvailable) {
             batch.draw(apple, appleX, appleY);
         }
@@ -73,8 +79,20 @@ public class GameScreen extends ScreenAdapter {
 
     private void checkAppleCollision() {
         if (appleAvailable && appleX == snakeX && appleY == snakeY) {
+            BodyPart bodyPart = new BodyPart(snakeBody);
+            bodyPart.updateBodyPosition(snakeX, snakeY);
+            bodyParts.insert(0,bodyPart);
             appleAvailable = false;
         }
+    }
+
+    private void updateBodyPartsPosition() {
+        if (bodyParts.size > 0) {
+            BodyPart bodyPart = bodyParts.removeIndex(0);
+            bodyPart.updateBodyPosition(snakeXBeforeUpdate, snakeYBeforeUpdate);
+            bodyParts.add(bodyPart);
+        }
+
     }
 
     private void checkAndPlaceApple() {
@@ -108,6 +126,8 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void moveSnake() {
+        snakeXBeforeUpdate = snakeX;
+        snakeYBeforeUpdate = snakeY;
         switch (snakeDirection) {
             case RIGHT: {
                 snakeX += SNAKE_MOVEMENT;
@@ -139,4 +159,5 @@ public class GameScreen extends ScreenAdapter {
         if (uPressed) snakeDirection = UP;
         if (dPressed) snakeDirection = DOWN;
     }
+
 }
