@@ -8,8 +8,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.nukesz.game.items.Item;
 
 public class GameScreen extends ScreenAdapter {
 
@@ -17,10 +19,15 @@ public class GameScreen extends ScreenAdapter {
     private static final float WORLD_HEIGHT = 640;
     private static final int GRID_CELL = 16;
 
+    private static final float MOVE_TIME = 0.2F;
+    private float timer = MOVE_TIME;
+
     private Viewport viewport;
     private Camera camera;
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
+
+    private Array<Item> items = new Array<Item>();
 
     @Override
     public void show() {
@@ -30,6 +37,8 @@ public class GameScreen extends ScreenAdapter {
         viewport.apply();
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
+        items.add(new Item((int) (viewport.getWorldWidth() / 2), (int) (viewport.getWorldHeight() - GRID_CELL),
+                GRID_CELL * 5, GRID_CELL));
     }
 
     @Override
@@ -40,9 +49,26 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
+        updateItems(delta);
         clearScreen();
         drawGrid();
+        drawOneElement();
         draw();
+    }
+
+    private void updateItems(float delta) {
+        timer -= delta;
+        if (timer <= 0) {
+            timer = MOVE_TIME;
+            moveItems();
+        }
+    }
+
+    // TODO One item only
+    private void moveItems() {
+        for (Item item: items) {
+            item.move();
+        }
     }
 
     private void clearScreen() {
@@ -69,6 +95,17 @@ public class GameScreen extends ScreenAdapter {
         }
         shapeRenderer.end();
     }
+
+    private void drawOneElement() {
+        shapeRenderer.setProjectionMatrix(camera.projection);
+        shapeRenderer.setTransformMatrix(camera.view);
+        for (Item item: items) {
+            item.draw(shapeRenderer);
+        }
+        shapeRenderer.end();
+    }
+
+
 
     @Override
     public void dispose() {
