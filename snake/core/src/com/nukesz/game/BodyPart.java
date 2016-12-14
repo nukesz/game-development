@@ -4,7 +4,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 
 public class BodyPart {
-    private int x, y;
+    public int x;
+    public int y;
     private Texture texture;
 
     public BodyPart(Texture texture) {
@@ -17,7 +18,9 @@ public class BodyPart {
     }
 
     public void draw(Batch batch, int snakeX, int snakeY) {
-        if (!(x == snakeX && y == snakeY)) batch.draw(texture, x, y);
+        if (x != snakeX || y != snakeY) {
+            batch.draw(texture, x, y);
+        }
     }
 
 }

@@ -3,15 +3,28 @@ package com.nukesz.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.awt.*;
 
 public class GameScreen extends ScreenAdapter {
+
+    private static final float WORLD_WIDTH = 640;
+    private static final float WORLD_HEIGHT = 480;
+    private static final String GAME_OVER_TEXT = "Game Over... Tap space to restart!";
+    private static final int POINTS_PER_APPLE = 10;
 
     private static final int RIGHT = 0;
     private static final int LEFT = 1;
@@ -19,13 +32,20 @@ public class GameScreen extends ScreenAdapter {
     private static final int DOWN = 3;
     private int snakeDirection = UP;
 
+    private Viewport viewport;
+    private Camera camera;
+
     private static final float MOVE_TIME = 0.2F;
     private static final int SNAKE_MOVEMENT = 32;
+    private static final int GRID_CELL = 32;
     private float timer = MOVE_TIME;
     private int snakeX = 0;
     private int snakeY = 0;
 
     private SpriteBatch batch;
+    private ShapeRenderer shapeRenderer;
+    private BitmapFont bitmapFont;
+    private GlyphLayout layout = new GlyphLayout();
     private Texture snakeHead;
     private Texture snakeBody;
     private Texture apple;
@@ -35,32 +55,76 @@ public class GameScreen extends ScreenAdapter {
     private Array<BodyPart> bodyParts = new Array<BodyPart>();
     private int snakeXBeforeUpdate;
     private int snakeYBeforeUpdate;
+    private boolean directionSet = false;
+    private State state = State.PLAYING;
+    private int score = 0;
 
     @Override
     public void show() {
+        camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera.position.set(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 0);
+        //camera.update();
+        viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
+        viewport.apply();
+        shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
+        bitmapFont = new BitmapFont();
         snakeHead = new Texture(Gdx.files.internal("snakehead_resized.png"));
         snakeBody = new Texture(Gdx.files.internal("snakebody.png"));
         apple = new Texture(Gdx.files.internal("apple.png"));
     }
 
     @Override
+    public void resize(int width, int height){
+        viewport.update(width, height);
+        camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
+    }
+
+    @Override
     public void render(float delta) {
-        queryInput();
+        switch (state) {
+            case PLAYING:
+                queryInput();
+                updateSnake(delta);
+                checkAppleCollision();
+                checkAndPlaceApple();
+                break;
+            case GAME_OVER:
+                checkForRestart();
+                break;
+        }
+        clearScreen();
+        //drawGrid();
+        draw();
+    }
+
+    private void updateSnake(float delta) {
         timer -= delta;
         if (timer <= 0) {
             timer = MOVE_TIME;
             moveSnake();
             checkForOutOfBounds();
             updateBodyPartsPosition();
+            checkSnakeBodyCollision();
+            directionSet = false;
         }
-        checkAppleCollision();
-        checkAndPlaceApple();
-        clearScreen();
-        draw();
+    }
+
+    private void drawGrid() {
+        shapeRenderer.setProjectionMatrix(camera.projection);
+        shapeRenderer.setTransformMatrix(camera.view);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        for (int x = 0; x < viewport.getWorldWidth(); x += GRID_CELL) {
+            for (int y = 0; y < viewport.getWorldHeight(); y += GRID_CELL) {
+                shapeRenderer.rect(x, y, GRID_CELL, GRID_CELL);
+            }
+        }
+        shapeRenderer.end();
     }
 
     private void draw() {
+        batch.setProjectionMatrix(camera.projection);
+        batch.setTransformMatrix(camera.view);
         batch.begin();
         batch.draw(snakeHead, snakeX, snakeY);
         for (BodyPart bodyPart : bodyParts) {
@@ -69,6 +133,13 @@ public class GameScreen extends ScreenAdapter {
         if (appleAvailable) {
             batch.draw(apple, appleX, appleY);
         }
+        if (state == State.GAME_OVER) {
+            layout.setText(bitmapFont, GAME_OVER_TEXT);
+            bitmapFont.draw(batch, GAME_OVER_TEXT, (viewport.getWorldWidth() -
+                    layout.width) / 2, (viewport.getWorldHeight() - layout.height) / 2);
+
+        }
+        drawScore();
         batch.end();
     }
 
@@ -81,7 +152,8 @@ public class GameScreen extends ScreenAdapter {
         if (appleAvailable && appleX == snakeX && appleY == snakeY) {
             BodyPart bodyPart = new BodyPart(snakeBody);
             bodyPart.updateBodyPosition(snakeX, snakeY);
-            bodyParts.insert(0,bodyPart);
+            bodyParts.insert(0, bodyPart);
+            addToScore();
             appleAvailable = false;
         }
     }
@@ -98,9 +170,9 @@ public class GameScreen extends ScreenAdapter {
     private void checkAndPlaceApple() {
         if (!appleAvailable) {
             do {
-                appleX = MathUtils.random(Gdx.graphics.getWidth()
+                appleX = MathUtils.random((int) viewport.getWorldWidth()
                         / SNAKE_MOVEMENT - 1) * SNAKE_MOVEMENT;
-                appleY = MathUtils.random(Gdx.graphics.getHeight()
+                appleY = MathUtils.random((int) viewport.getWorldHeight()
                         / SNAKE_MOVEMENT - 1) * SNAKE_MOVEMENT;
                 appleAvailable = true;
             } while (appleX == snakeX && appleY == snakeY);
@@ -108,20 +180,17 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void checkForOutOfBounds() {
-        if (snakeX >= Gdx.graphics.getWidth()) {
+        if (snakeX >= viewport.getWorldWidth()) {
             snakeX = 0;
         }
-
         if (snakeX < 0) {
-            snakeX = Gdx.graphics.getWidth() - SNAKE_MOVEMENT;
+            snakeX = (int) viewport.getWorldWidth() - SNAKE_MOVEMENT;
         }
-
-        if (snakeY >= Gdx.graphics.getHeight()) {
+        if (snakeY >= viewport.getWorldHeight()) {
             snakeY = 0;
         }
-
         if (snakeY < 0) {
-            snakeY = Gdx.graphics.getHeight() - SNAKE_MOVEMENT;
+            snakeY = (int) viewport.getWorldHeight() - SNAKE_MOVEMENT;
         }
     }
 
@@ -129,22 +198,18 @@ public class GameScreen extends ScreenAdapter {
         snakeXBeforeUpdate = snakeX;
         snakeYBeforeUpdate = snakeY;
         switch (snakeDirection) {
-            case RIGHT: {
+            case RIGHT:
                 snakeX += SNAKE_MOVEMENT;
                 break;
-            }
-            case LEFT: {
+            case LEFT:
                 snakeX -= SNAKE_MOVEMENT;
                 break;
-            }
-            case UP: {
+            case UP:
                 snakeY += SNAKE_MOVEMENT;
                 break;
-            }
-            case DOWN: {
+            case DOWN:
                 snakeY -= SNAKE_MOVEMENT;
                 break;
-            }
         }
     }
 
@@ -153,11 +218,75 @@ public class GameScreen extends ScreenAdapter {
         boolean rPressed = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
         boolean uPressed = Gdx.input.isKeyPressed(Input.Keys.UP);
         boolean dPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN);
-
-        if (lPressed) snakeDirection = LEFT;
-        if (rPressed) snakeDirection = RIGHT;
-        if (uPressed) snakeDirection = UP;
-        if (dPressed) snakeDirection = DOWN;
+        if (lPressed) updateDirection(LEFT);
+        if (rPressed) updateDirection(RIGHT);
+        if (uPressed) updateDirection(UP);
+        if (dPressed) updateDirection(DOWN);
     }
 
+    private void updateIfNotOppositeDirection(int newSnakeDirection, int oppositeDirection) {
+        if (snakeDirection != oppositeDirection || bodyParts.size == 0) {
+            snakeDirection = newSnakeDirection;
+        }
+    }
+
+    private void updateDirection(int newSnakeDirection) {
+        if (!directionSet && snakeDirection != newSnakeDirection) {
+            directionSet = true;
+            switch (newSnakeDirection) {
+                case LEFT:
+                    updateIfNotOppositeDirection(newSnakeDirection, RIGHT);
+                    break;
+                case RIGHT:
+                    updateIfNotOppositeDirection(newSnakeDirection, LEFT);
+                    break;
+                case UP:
+                    updateIfNotOppositeDirection(newSnakeDirection, DOWN);
+                    break;
+                case DOWN:
+                    updateIfNotOppositeDirection(newSnakeDirection, UP);
+                    break;
+            }
+        }
+    }
+
+    private void checkSnakeBodyCollision() {
+        for (BodyPart bodyPart : bodyParts) {
+            if (bodyPart.x == snakeX && bodyPart.y == snakeY) {
+                state = State.GAME_OVER;
+            }
+        }
+    }
+
+    private void checkForRestart() {
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            doRestart();
+        }
+    }
+    private void doRestart() {
+        state = State.PLAYING;
+        bodyParts.clear();
+        snakeDirection = RIGHT;
+        directionSet = false;
+        timer = MOVE_TIME;
+        snakeX = 0;
+        snakeY = 0;
+        snakeXBeforeUpdate = 0;
+        snakeYBeforeUpdate = 0;
+        appleAvailable = false;
+        score = 0;
+    }
+
+    private void addToScore() {
+        score += POINTS_PER_APPLE;
+    }
+
+    private void drawScore() {
+        if (state == State.PLAYING) {
+            String scoreAsString = Integer.toString(score);
+            layout.setText(bitmapFont, scoreAsString);
+            bitmapFont.draw(batch, scoreAsString, (viewport.getWorldWidth() - layout.width) / 2, (4 * viewport.getWorldHeight() / 5) -
+                    layout.height / 2);
+        }
+    }
 }
