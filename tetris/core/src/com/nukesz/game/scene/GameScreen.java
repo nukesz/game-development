@@ -13,13 +13,15 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.nukesz.game.items.Item;
 
+import java.util.Iterator;
+
 public class GameScreen extends ScreenAdapter {
 
     private static final float WORLD_WIDTH = 480;
     private static final float WORLD_HEIGHT = 640;
     private static final int GRID_CELL = 16;
 
-    private static final float MOVE_TIME = 0.2F;
+    private static final float MOVE_TIME = 0.01F;
     private float timer = MOVE_TIME;
 
     private Viewport viewport;
@@ -37,9 +39,9 @@ public class GameScreen extends ScreenAdapter {
         viewport.apply();
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
-        items.add(new Item((int) (viewport.getWorldWidth() / 2), (int) (viewport.getWorldHeight() - GRID_CELL),
-                GRID_CELL * 5, GRID_CELL));
     }
+
+
 
     @Override
     public void resize(int width, int height){
@@ -60,15 +62,30 @@ public class GameScreen extends ScreenAdapter {
         timer -= delta;
         if (timer <= 0) {
             timer = MOVE_TIME;
+            if (!hasMovingItem()) {
+                createItem();
+            }
             moveItems();
         }
     }
 
+    private boolean hasMovingItem() {
+        for (Item item: items) {
+            if (item.isMoving()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void createItem() {
+        items.add(new Item((int) (viewport.getWorldWidth() / 2), (int) (viewport.getWorldHeight() - GRID_CELL),
+                GRID_CELL * 5, GRID_CELL));
+    }
+
     // TODO One item only
     private void moveItems() {
-        for (Item item: items) {
-            item.move();
-        }
+        items.peek().move(items);
     }
 
     private void clearScreen() {
@@ -102,7 +119,6 @@ public class GameScreen extends ScreenAdapter {
         for (Item item: items) {
             item.draw(shapeRenderer);
         }
-        shapeRenderer.end();
     }
 
 
