@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
+import com.nukesz.game.scene.GameScreen;
 
 public class Item {
 
@@ -61,5 +62,19 @@ public class Item {
 
     public void setMoving(boolean moving) {
         this.moving = moving;
+    }
+
+    public void moveLeft() {
+        if (x > 0) {
+            x -= 16;
+            collision.setX(x);
+        }
+    }
+
+    public void moveRight() {
+        if (x + width < GameScreen.WORLD_WIDTH) {
+            x += 16;
+            collision.setX(x);
+        }
     }
 }
