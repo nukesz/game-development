@@ -13,16 +13,18 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.nukesz.game.items.Item;
+import com.nukesz.game.items.ItemBuilder;
 
 public class GameScreen extends ScreenAdapter {
 
     public static final float WORLD_WIDTH = 480;
     public static final float WORLD_HEIGHT = 640;
-    private static final int GRID_CELL = 16;
+    public static final int GRID_CELL = 16;
 
     private static final float MOVE_TIME = 0.1F;
     private static final int LEFT = 0;
     private static final int RIGHT = 1;
+    private static final int SPACE = 2;
     private float timer = MOVE_TIME;
 
     private Viewport viewport;
@@ -54,6 +56,7 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         updateItems(delta);
+        queryInput();
         clearScreen();
         drawGrid();
         drawItems();
@@ -63,8 +66,10 @@ public class GameScreen extends ScreenAdapter {
     private void queryInput() {
         boolean lPressed = Gdx.input.isKeyPressed(Input.Keys.LEFT);
         boolean rPressed = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
+        boolean sPressed = Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
         if (lPressed) updateDirection(LEFT);
         if (rPressed) updateDirection(RIGHT);
+        if (sPressed) updateDirection(SPACE);
     }
 
     private void updateDirection(int newDirection) {
@@ -77,10 +82,16 @@ public class GameScreen extends ScreenAdapter {
                 case RIGHT:
                     moveRight();
                     break;
+                case SPACE:
+                    rotate();
+                    break;
             }
         }
     }
 
+    private void rotate() {
+        items.peek().rotate();
+    }
 
     private void moveLeft() {
         items.peek().moveLeft();
@@ -98,7 +109,6 @@ public class GameScreen extends ScreenAdapter {
             if (!hasMovingItem()) {
                 createItem();
             }
-            queryInput();
             moveLastAddedItem();
             directionSet = false;
         }
@@ -114,8 +124,7 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void createItem() {
-        items.add(new Item((int) (viewport.getWorldWidth() / 2), (int) (viewport.getWorldHeight() - GRID_CELL),
-                GRID_CELL * 5, GRID_CELL));
+        items.add(ItemBuilder.create((int) (viewport.getWorldWidth() / 2), (int) (viewport.getWorldHeight())));
     }
 
     private void moveLastAddedItem() {
