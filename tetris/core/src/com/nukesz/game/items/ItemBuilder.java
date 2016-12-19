@@ -7,7 +7,7 @@ public class ItemBuilder {
 
     public static Item create(int x, int y) {
         if (MathUtils.random(1) == 0) {
-            return new Line(x, y, GameScreen.GRID_CELL * 4, GameScreen.GRID_CELL);
+            return new Line(x, y);
         } else {
             return new Square(x, y);
         }

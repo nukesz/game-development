@@ -4,8 +4,8 @@ import com.nukesz.game.scene.GameScreen;
 
 public class Line extends Item {
 
-    public Line(int x, int y, int width, int height) {
-        super(x, y, width, height);
+    public Line(int x, int y) {
+        super(x, y, GameScreen.GRID_CELL * 4, GameScreen.GRID_CELL);
     }
 
     @Override

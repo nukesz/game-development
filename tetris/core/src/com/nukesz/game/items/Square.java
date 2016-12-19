@@ -9,7 +9,6 @@ public class Square extends Item {
         super(x, y, GameScreen.GRID_CELL * 2, GameScreen.GRID_CELL * 2);
     }
 
-
     @Override
     public void rotate() {
         // Nothing to do
