@@ -94,11 +94,11 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void moveLeft() {
-        items.peek().moveLeft();
+        items.peek().moveLeft(items);
     }
 
     private void moveRight() {
-        items.peek().moveRight();
+        items.peek().moveRight(items);
     }
 
 
@@ -128,7 +128,7 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void moveLastAddedItem() {
-        items.peek().move(items);
+        items.peek().moveDown(items);
     }
 
     private void clearScreen() {

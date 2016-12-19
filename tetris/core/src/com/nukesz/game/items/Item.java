@@ -22,18 +22,8 @@ public abstract class Item {
         setCollision(x, y, width, height);
     }
 
-    protected  void setCollision(float x, float y, float width, float height) {
+    protected void setCollision(float x, float y, float width, float height) {
         collision.set(x, y, width, height);
-    }
-
-    public void move(Array<Item> otherItems) {
-        Rectangle nextCollision = new Rectangle();
-        nextCollision.set(collision.x, collision.y - 16, collision.width, collision.height);
-        if (moving && nextCollision.y >= 0 && !doesCollideWithOtherItem(otherItems, nextCollision)) {
-            collision = nextCollision;
-        } else {
-            setMoving(false);
-        }
     }
 
     private boolean doesCollideWithOtherItem(Array<Item> otherItems, Rectangle nextCollision) {
@@ -61,15 +51,29 @@ public abstract class Item {
         this.moving = moving;
     }
 
-    public void moveLeft() {
-        if (collision.x > 0) {
-            collision.x -= 16;
+    public void moveLeft(Array<Item> otherItems) {
+        Rectangle nextCollision = new Rectangle();
+        nextCollision.set(collision.x - 16, collision.y, collision.width, collision.height);
+        if (moving && collision.x > 0 && !doesCollideWithOtherItem(otherItems, nextCollision)) {
+            collision = nextCollision;
         }
     }
 
-    public void moveRight() {
-        if (collision.x + collision.width < GameScreen.WORLD_WIDTH) {
-            collision.x += 16;
+    public void moveRight(Array<Item> otherItems) {
+        Rectangle nextCollision = new Rectangle();
+        nextCollision.set(collision.x + 16, collision.y, collision.width, collision.height);
+        if (moving && collision.x + collision.width < GameScreen.WORLD_WIDTH && !doesCollideWithOtherItem(otherItems, nextCollision)) {
+            collision = nextCollision;
+        }
+    }
+
+    public void moveDown(Array<Item> otherItems) {
+        Rectangle nextCollision = new Rectangle();
+        nextCollision.set(collision.x, collision.y - 16, collision.width, collision.height);
+        if (moving && nextCollision.y >= 0 && !doesCollideWithOtherItem(otherItems, nextCollision)) {
+            collision = nextCollision;
+        } else {
+            setMoving(false);
         }
     }
 
