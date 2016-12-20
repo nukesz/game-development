@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -17,9 +19,11 @@ public class GameScreen extends ScreenAdapter {
     private static final float WORLD_HEIGHT = 480;
     private ShapeRenderer shapeRenderer;
     private Viewport viewport;
-    private Camera camera;
+    private OrthographicCamera camera;
     private SpriteBatch batch;
     private final PeteGame peteGame;
+    private TiledMap tiledMap;
+    private OrthogonalTiledMapRenderer orthogonalTiledMapRenderer;
 
     public GameScreen(PeteGame peteGame) {
         this.peteGame = peteGame;
@@ -36,8 +40,12 @@ public class GameScreen extends ScreenAdapter {
         camera.position.set(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 0);
         camera.update();
         viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
+        viewport.apply(true);
         shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
+        tiledMap = peteGame.getAssetManager().get("pete.tmx");
+        orthogonalTiledMapRenderer = new  OrthogonalTiledMapRenderer(tiledMap, batch);
+        orthogonalTiledMapRenderer.setView(camera);
     }
 
     @Override
@@ -60,8 +68,7 @@ public class GameScreen extends ScreenAdapter {
     private void draw() {
         batch.setProjectionMatrix(camera.projection);
         batch.setTransformMatrix(camera.view);
-        batch.begin();
-        batch.end();
+        orthogonalTiledMapRenderer.render();
     }
 
     private void drawDebug() {
