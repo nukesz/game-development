@@ -130,8 +130,7 @@ public class GameScreen extends ScreenAdapter {
         float cellY = y / CELL_SIZE;
         int bottomLeftCellX = MathUtils.floor(cellX);
         int bottomLeftCellY = MathUtils.floor(cellY);
-        TiledMapTileLayer tiledMapTileLayer = (TiledMapTileLayer)
-                tiledMap.getLayers().get(0);
+        TiledMapTileLayer tiledMapTileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
         cellsCovered.add(new
                 CollisionCell(tiledMapTileLayer.getCell(bottomLeftCellX,
                 bottomLeftCellY), bottomLeftCellX, bottomLeftCellY));
@@ -227,7 +226,7 @@ public class GameScreen extends ScreenAdapter {
         }
     }
 
-    private class CollisionCell {
+    private static class CollisionCell {
         private final TiledMapTileLayer.Cell cell;
         private final int cellX;
         private final int cellY;

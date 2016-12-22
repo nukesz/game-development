@@ -12,6 +12,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 
 public class PeteGame extends Game {
+
 	private final AssetManager assetManager = new AssetManager();
 
 	@Override
