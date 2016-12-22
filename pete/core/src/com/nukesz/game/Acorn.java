@@ -16,11 +16,15 @@ public class Acorn {
         this.texture = texture;
         this.x = x;
         this.y = y;
-        this.collision = new Rectangle(x,y, WIDTH,HEIGHT);
+        this.collision = new Rectangle(x, y, WIDTH, HEIGHT);
     }
 
     public void draw(Batch batch) {
         batch.draw(texture, x, y);
+    }
+
+    public Rectangle getCollisionRectangle() {
+        return collision;
     }
 }
 

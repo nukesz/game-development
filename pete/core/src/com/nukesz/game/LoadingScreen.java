@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -44,6 +46,10 @@ public class LoadingScreen extends ScreenAdapter {
         AssetManager assetManager = peteGame.getAssetManager();
         assetManager.load("pete.tmx", TiledMap.class);
         assetManager.load("pete.png", Texture.class);
+        assetManager.load("acorn.png", Texture.class);
+        assetManager.load("jump.wav", Sound.class);
+        assetManager.load("acorn.wav", Sound.class);
+        assetManager.load("peteTheme.mp3", Music.class);
     }
 
     @Override

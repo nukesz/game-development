@@ -2,6 +2,8 @@ package com.nukesz.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -32,7 +34,6 @@ public class GameScreen extends ScreenAdapter {
     private TiledMap tiledMap;
     private OrthogonalTiledMapRenderer orthogonalTiledMapRenderer;
     private Array<Acorn> acorns = new Array<Acorn>();
-
     private Pete pete;
 
     public GameScreen(PeteGame peteGame) {
@@ -56,8 +57,13 @@ public class GameScreen extends ScreenAdapter {
         tiledMap = peteGame.getAssetManager().get("pete.tmx");
         orthogonalTiledMapRenderer = new  OrthogonalTiledMapRenderer(tiledMap, batch);
         orthogonalTiledMapRenderer.setView(camera);
-        pete = new Pete(peteGame.getAssetManager().get("pete.png", Texture.class));
+        pete = new Pete(peteGame.getAssetManager().get("pete.png", Texture.class),
+                peteGame.getAssetManager().get("jump.wav", Sound.class));
+        pete.setPosition(0, WORLD_HEIGHT / 2);
         populateAcorns();
+        Music music = peteGame.getAssetManager().get("peteTheme.mp3", Music.class);
+        music.setLooping(true);
+        music.play();
     }
 
     @Override
@@ -72,6 +78,8 @@ public class GameScreen extends ScreenAdapter {
         pete.update(delta);
         stopPeteLeavingTheScreen();
         handlePeteCollision();
+        handlePeteCollisionWithAcorn();
+        updateCameraX();
     }
 
     private void clearScreen() {
@@ -104,14 +112,13 @@ public class GameScreen extends ScreenAdapter {
             pete.setPosition(pete.getX(), 0);
             pete.landed();
         }
-        if (pete.getY() < 0) {
-            pete.setPosition(pete.getX(), 0);
-        }
         if (pete.getX() < 0) {
             pete.setPosition(0, pete.getY());
         }
-        if (pete.getX() + Pete.WIDTH > WORLD_WIDTH) {
-            pete.setPosition(WORLD_WIDTH - Pete.WIDTH,  pete.getY());
+        TiledMapTileLayer tiledMapTileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
+        float levelWidth = tiledMapTileLayer.getWidth() * tiledMapTileLayer.getTileWidth();
+        if (pete.getX() + Pete.WIDTH > levelWidth) {
+            pete.setPosition(levelWidth - Pete.WIDTH, pete.getY());
         }
     }
 
@@ -190,7 +197,6 @@ public class GameScreen extends ScreenAdapter {
     private void populateAcorns() {
         MapLayer mapLayer = tiledMap.getLayers().get("Collectables");
         for (MapObject mapObject : mapLayer.getObjects()) {
-            System.out.println("helloka");
             acorns.add(
                     new Acorn(peteGame.getAssetManager().get("acorn.png",
                             Texture.class),
@@ -201,6 +207,25 @@ public class GameScreen extends ScreenAdapter {
         }
     }
 
+    private void handlePeteCollisionWithAcorn() {
+        for (Iterator<Acorn> iter = acorns.iterator(); iter.hasNext();) {
+            Acorn acorn = iter.next();
+            if (pete.getCollisionRectangle().overlaps(acorn.getCollisionRectangle())){
+                peteGame.getAssetManager().get("acorn.wav", Sound.class).play();
+                iter.remove();
+            }
+        }
+    }
+
+    private void updateCameraX() {
+        TiledMapTileLayer tiledMapTileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
+        float levelWidth = tiledMapTileLayer.getWidth() * tiledMapTileLayer.getTileWidth();
+        if ((pete.getX() > WORLD_WIDTH / 2f) && (pete.getX() < (levelWidth - WORLD_WIDTH / 2f))) {
+            camera.position.set(pete.getX(), camera.position.y, camera.position.z);
+            camera.update();
+            orthogonalTiledMapRenderer.setView(camera);
+        }
+    }
 
     private class CollisionCell {
         private final TiledMapTileLayer.Cell cell;

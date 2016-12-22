@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" nextobjectid="8">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="80" height="30" tilewidth="16" tileheight="16" nextobjectid="9">
  <tileset firstgid="1" name="floor" tilewidth="16" tileheight="16" tilecount="18" columns="6">
   <image source="floor.png" width="96" height="48"/>
  </tileset>
  <tileset firstgid="19" name="acorn" tilewidth="16" tileheight="16" tilecount="1" columns="1">
   <image source="acorn.png" width="16" height="16"/>
  </tileset>
- <tileset firstgid="20" name="acorn" tilewidth="16" tileheight="16" tilecount="1" columns="1">
-  <image source="acorn.png" width="16" height="16"/>
- </tileset>
- <layer name="Tile Layer 1" width="40" height="30">
+ <layer name="Tile Layer 1" width="80" height="30">
   <data encoding="base64" compression="zlib">
-   eJztk90KwzAIhd26n27r1m3v/7A7uRCCGNHASC48cMCKNSGfEqVSqVQqlUqlZtUBvoy+hKErvI2+hKEn/B19CUWF6xFe4BN8prk4F64rfIPv8IPm4ly4vuAdfsMf+i/nyB5Ktj2Mo3sf2UPJtodxdO8jeyjZ9jD2nhfZQ66V9XXs7eGdicgecq2sr2NvD+9MRPaQa2V9HXt7WOe1OMnvOq/VWv9z7D2Dc4W1fOMWLy0vcz19rPnYlDdu8dLyMtfTx5qPwvoH4H8JWQ==
+   eJztldsKAyEMRO222/v9/z+2yYMQQpRECio7BwY0G7O+jJMSAAAAAAAAAAAAAADbYEc69r7ExJxI996XmJgH6dv7EhPCvl1Ie9KBtCb4OAL79ky6kK6kW4KPI7Bvn6QX6U36pG37OJKj2rstHo7m9ug5H8lR7d0WD0dze/Scj+So9m6Lh6O5PWrOR3I09+p+ufbO8Hp+9JyP5Gju1f1y7Z3h9fzoOR/J0dyr++XaO8Pr+RFzvuRDvZd1q7d2fqmo9A+rbn3Le2veWjn3j+/8dmhPlPxo1XWtZU5pbmS2rOk+qy7fFusOnj2L3w7tiZIfrbqutcwpzY3MljXdZ9Xl22LdwbNn8dvxA5fYDqY=
   </data>
  </layer>
  <objectgroup name="Collectables">
-  <object id="2" gid="20" x="444" y="429" width="16" height="16"/>
-  <object id="4" gid="20" x="156" y="427" width="16" height="16"/>
-  <object id="5" gid="20" x="179" y="416" width="16" height="16"/>
-  <object id="6" gid="20" x="191" y="429" width="16" height="16"/>
-  <object id="7" gid="20" x="460" y="416" width="16" height="16"/>
+  <object id="2" gid="19" x="444" y="429" width="16" height="16"/>
+  <object id="4" gid="19" x="156" y="427" width="16" height="16"/>
+  <object id="5" gid="19" x="179" y="416" width="16" height="16"/>
+  <object id="6" gid="19" x="191" y="429" width="16" height="16"/>
+  <object id="7" gid="19" x="460" y="416" width="16" height="16"/>
  </objectgroup>
 </map>
