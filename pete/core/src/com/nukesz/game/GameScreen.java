@@ -25,6 +25,8 @@ public class GameScreen extends ScreenAdapter {
     private TiledMap tiledMap;
     private OrthogonalTiledMapRenderer orthogonalTiledMapRenderer;
 
+    private Pete pete;
+
     public GameScreen(PeteGame peteGame) {
         this.peteGame = peteGame;
     }
@@ -46,6 +48,7 @@ public class GameScreen extends ScreenAdapter {
         tiledMap = peteGame.getAssetManager().get("pete.tmx");
         orthogonalTiledMapRenderer = new  OrthogonalTiledMapRenderer(tiledMap, batch);
         orthogonalTiledMapRenderer.setView(camera);
+        pete = new Pete();
     }
 
     @Override
@@ -57,11 +60,12 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void update(float delta) {
+        pete.update();
+        stopPeteLeavingTheScreen();
     }
 
     private void clearScreen() {
-        Gdx.gl.glClearColor(Color.BLACK.r, Color.BLACK.g,
-                Color.BLACK.b, Color.BLACK.a);
+        Gdx.gl.glClearColor(Color.CYAN.r, Color.CYAN.g, Color.CYAN.b, Color.CYAN.a);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     }
 
@@ -75,6 +79,23 @@ public class GameScreen extends ScreenAdapter {
         shapeRenderer.setProjectionMatrix(camera.projection);
         shapeRenderer.setTransformMatrix(camera.view);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        pete.drawDebug(shapeRenderer);
         shapeRenderer.end();
+    }
+
+    private void stopPeteLeavingTheScreen() {
+        if (pete.getY() < 0) {
+            pete.setPosition(pete.getX(), 0);
+            pete.landed();
+        }
+        if (pete.getY() < 0) {
+            pete.setPosition(pete.getX(), 0);
+        }
+        if (pete.getX() < 0) {
+            pete.setPosition(0, pete.getY());
+        }
+        if (pete.getX() + Pete.WIDTH > WORLD_WIDTH) {
+            pete.setPosition(WORLD_WIDTH - Pete.WIDTH,  pete.getY());
+        }
     }
 }
