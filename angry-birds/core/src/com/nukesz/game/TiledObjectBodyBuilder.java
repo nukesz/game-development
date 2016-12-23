@@ -2,14 +2,13 @@ package com.nukesz.game;
 
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.objects.EllipseMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.math.Ellipse;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.*;
 
 public class TiledObjectBodyBuilder {
     private static final float PIXELS_PER_TILE = 32F;
@@ -52,6 +51,27 @@ public class TiledObjectBodyBuilder {
                 size,
                 0.0f);
         return polygon;
+    }
+
+    public static void buildBirdBodies(TiledMap tiledMap, World world) {
+        MapObjects objects = tiledMap.getLayers().get("Birds").getObjects();
+        for (MapObject object : objects) {
+            CircleShape circle = getCircle((EllipseMapObject) object);
+            BodyDef bd = new BodyDef();
+            bd.type = BodyDef.BodyType.DynamicBody;
+            Body body = world.createBody(bd);
+            body.createFixture(circle, 1);
+            circle.dispose();
+        }
+    }
+
+    private static CircleShape getCircle(EllipseMapObject ellipseObject) {
+        Ellipse ellipse = ellipseObject.getEllipse();
+        CircleShape circleShape = new CircleShape();
+        circleShape.setRadius(ellipse.width * HALF / PIXELS_PER_TILE);
+        circleShape.setPosition(new Vector2((ellipse.x + ellipse.width *
+                HALF) / PIXELS_PER_TILE, (ellipse.y + ellipse.height * HALF) / PIXELS_PER_TILE));
+        return circleShape;
     }
 
 }

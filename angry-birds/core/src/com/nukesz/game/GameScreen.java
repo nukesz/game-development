@@ -1,6 +1,7 @@
 package com.nukesz.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -52,7 +53,19 @@ public class GameScreen extends ScreenAdapter {
         orthogonalTiledMapRenderer.setView(camera);
         TiledObjectBodyBuilder.buildBuildingBodies(tiledMap, world);
         TiledObjectBodyBuilder.buildFloorBodies(tiledMap, world);
+        TiledObjectBodyBuilder.buildBirdBodies(tiledMap, world);
         box2dCam = new OrthographicCamera(UNIT_WIDTH, UNIT_HEIGHT);
+        setInputProcessor();
+    }
+
+    private void setInputProcessor() {
+        Gdx.input.setInputProcessor(new InputAdapter() {
+            @Override
+            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                createBullet();
+                return true;
+            }
+        });
     }
 
     @Override
@@ -101,5 +114,17 @@ public class GameScreen extends ScreenAdapter {
         box.createFixture(poly, 1);
         poly.dispose();
         return box;
+    }
+
+    private void createBullet() {
+        CircleShape circleShape = new CircleShape();
+        circleShape.setRadius(0.5f);
+        circleShape.setPosition(new Vector2(3,6));
+        BodyDef bd = new BodyDef();
+        bd.type = BodyDef.BodyType.DynamicBody;
+        Body bullet = world.createBody(bd);
+        bullet.createFixture(circleShape, 0);
+        circleShape.dispose();
+        bullet.setLinearVelocity(10, 6);
     }
 }
