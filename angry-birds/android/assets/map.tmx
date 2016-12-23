@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="30" height="17" tilewidth="32" tileheight="32" nextobjectid="15">
+ <tileset firstgid="1" name="floor" tilewidth="32" tileheight="32" tilecount="10" columns="5">
+  <image source="floor.png" width="160" height="64"/>
+ </tileset>
+ <imagelayer name="Background">
+  <image source="bg.png" trans="000000" width="960" height="540"/>
+ </imagelayer>
+ <layer name="Ground" width="30" height="17">
+  <data encoding="base64" compression="zlib">
+   eJzty7kJAEAIRFH3PvoveCcwEAMtYOfDQ0QUYYwxxv6tQIOqsxt2j+7Zrzdgwoal8xh2j+7Zr3fhAYzkAWk=
+  </data>
+ </layer>
+ <objectgroup name="Floor">
+  <object id="14" x="0" y="480" width="960" height="64"/>
+ </objectgroup>
+ <objectgroup name="Buildings">
+  <object id="8" x="704" y="352" width="32" height="128"/>
+  <object id="9" x="608" y="320" width="128" height="32"/>
+  <object id="10" x="480" y="320" width="128" height="32"/>
+  <object id="11" x="480" y="352" width="32" height="128"/>
+ </objectgroup>
+ <objectgroup name="Birds">
+  <object id="12" x="576" y="384" width="96" height="96">
+   <ellipse/>
+  </object>
+ </objectgroup>
+</map>
