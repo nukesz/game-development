@@ -60,7 +60,8 @@ public class TiledObjectBodyBuilder {
             BodyDef bd = new BodyDef();
             bd.type = BodyDef.BodyType.DynamicBody;
             Body body = world.createBody(bd);
-            body.createFixture(circle, 1);
+            Fixture fixture = body.createFixture(circle, 1);
+            fixture.setUserData("enemy");
             circle.dispose();
         }
     }

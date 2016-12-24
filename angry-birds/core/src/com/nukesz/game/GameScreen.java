@@ -32,6 +32,8 @@ public class GameScreen extends ScreenAdapter {
     private TiledMap tiledMap;
     private OrthogonalTiledMapRenderer orthogonalTiledMapRenderer;
     private OrthographicCamera box2dCam;
+    private BirdContactListener listener;
+    private Catapult catapult;
 
     public GameScreen(AngryBirdsGame angryBirdsGame) {
         this.angryBirdsGame = angryBirdsGame;
@@ -56,13 +58,24 @@ public class GameScreen extends ScreenAdapter {
         TiledObjectBodyBuilder.buildBirdBodies(tiledMap, world);
         box2dCam = new OrthographicCamera(UNIT_WIDTH, UNIT_HEIGHT);
         setInputProcessor();
+        listener = new BirdContactListener(world);
+        catapult = new Catapult(viewport, world);
+        world.setContactListener(listener);
     }
 
     private void setInputProcessor() {
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
-            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                createBullet();
+            public boolean touchDragged(int screenX, int screenY, int
+                    pointer) {
+                catapult.calculateAngleAndDistanceForBullet(screenX, screenY);
+                return true;
+            }
+            @Override
+            public boolean touchUp(int screenX, int screenY, int pointer,
+                                   int button) {
+                catapult.createBullet();
+                catapult.setFiringPosition();
                 return true;
             }
         });
@@ -96,11 +109,14 @@ public class GameScreen extends ScreenAdapter {
 
     private void drawDebug() {
         debugRenderer.render(world, box2dCam.combined);
+        shapeRenderer.setProjectionMatrix(camera.projection);
+        shapeRenderer.setTransformMatrix(camera.view);
+        catapult.drawDebug(shapeRenderer);
     }
 
     private void update(float delta) {
+        listener.clearDeadBodies();
         world.step(delta, 6, 2);
-        body.setAwake(true);
         box2dCam.position.set(UNIT_WIDTH / 2, UNIT_HEIGHT / 2, 0);
         box2dCam.update();
     }
@@ -114,17 +130,5 @@ public class GameScreen extends ScreenAdapter {
         box.createFixture(poly, 1);
         poly.dispose();
         return box;
-    }
-
-    private void createBullet() {
-        CircleShape circleShape = new CircleShape();
-        circleShape.setRadius(0.5f);
-        circleShape.setPosition(new Vector2(3,6));
-        BodyDef bd = new BodyDef();
-        bd.type = BodyDef.BodyType.DynamicBody;
-        Body bullet = world.createBody(bd);
-        bullet.createFixture(circleShape, 0);
-        circleShape.dispose();
-        bullet.setLinearVelocity(10, 6);
     }
 }
